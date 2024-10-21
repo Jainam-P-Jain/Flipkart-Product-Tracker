@@ -20,7 +20,7 @@ const HomePage = () => {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.get("http://localhost:5000/api/products/all"); 
+            const response = await axios.get("https://flipkart-product-tracker.onrender.com/api/products/all"); 
             setProductsData(response.data); // Set products from response
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -36,7 +36,7 @@ const HomePage = () => {
         setLoading(true); 
         setSearchResults([]); 
         try {
-            const response = await axios.get(`http://localhost:5000/api/products?title=${encodeURIComponent(url)}`); 
+            const response = await axios.get(`https://flipkart-product-tracker.onrender.com/api/products?title=${encodeURIComponent(url)}`); 
             setSearchResults(response.data); 
         } catch (error) {
             console.error("Error fetching products:", error);

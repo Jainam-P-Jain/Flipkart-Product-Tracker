@@ -15,7 +15,7 @@ const ExploreProducts = () => {
             console.log(title)
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:5000/api/products?title=${title}`);
+                const response = await axios.get(`https://flipkart-product-tracker.onrender.com/api/products?title=${title}`);
                 setProducts(response.data); // Assuming the API returns an array of products
             } catch (error) {
                 setError('Failed to fetch products.');

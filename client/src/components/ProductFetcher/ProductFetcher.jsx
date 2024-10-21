@@ -52,7 +52,7 @@ const ProductFetcher = () => {
         
         try {
            console.log(id)
-            const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+            const response = await axios.get(`https://flipkart-product-tracker.onrender.com/api/products/${id}`);
             setProduct(response.data);
             setPriceChanged(null); 
             
@@ -78,7 +78,7 @@ const ProductFetcher = () => {
         setLoading(true); 
         setProduct(null);
         try {
-            const response = await axios.post('http://localhost:5000/api/products/fetch-product', { url });
+            const response = await axios.post('https://flipkart-product-tracker.onrender.com/api/products/fetch-product', { url });
             setProduct(response.data);
             setPriceChanged(null); 
         } catch (error) {
@@ -104,7 +104,7 @@ const ProductFetcher = () => {
         if (!product) return; 
 
         try {
-            const response = await axios.post('http://localhost:5000/api/products/fetch-product', { url });
+            const response = await axios.post('https://flipkart-product-tracker.onrender.com/api/products/fetch-product', { url });
             const updatedProduct = response.data;
 
             

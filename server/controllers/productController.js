@@ -63,7 +63,25 @@ const fetchFlipkartProduct = async (url) => {
     try {
         browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'networkidle2' });
+
+        const navigationPromise = page.waitForNavigation();
+
+        await page.setUserAgent(
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        );
+        
+        const response = await page.goto(url, {
+          waitUntil: "networkidle2",
+        });
+        
+        await navigationPromise;
+        
+        if (!response) {
+          await page.close();
+          return { status: 400, content: "" };
+        }
+        
+        await page.waitForSelector("span.VU-ZEz");
 
         const title = await page.$eval('span.VU-ZEz', el => el.innerText);
         const price = await page.$eval('div.Nx9bqj.CxhGGd', el => el.innerText.replaceAll('₹', '').replaceAll(',', ''));

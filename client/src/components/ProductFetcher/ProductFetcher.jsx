@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
-import Loader from './Loader/Loader'; // Make sure Loader component is correctly imported
-import flipkartLogo from '../assets/flipkart_logo.png';
+import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import Loader from "../Loader/Loader";
+import flipkartLogo from "../../assets/flipkart_logo.png";
+import ProductDetails from "../ProductDetails/ProductDetails";
 import './ProductFetcher.css'; // Custom CSS for extra styling
-import ProductChart from './ProductChart'; // Assuming you have this component
-import ProductDetails from './ProductDetails'; // Import the ProductDetails component
+import { useParams } from "react-router-dom";
+
 
 const ProductFetcher = () => {
     const [url, setUrl] = useState('');
@@ -12,8 +15,28 @@ const ProductFetcher = () => {
     const [priceChanged, setPriceChanged] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const searchInputRef = useRef(null);
+    const { id } = useParams();
+    
 
-    // Helper function to validate the URL
+
+    useEffect(() => {
+        if (!id && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [id]);
+  
+    // Fetch product details by ID if a id is passed in the props
+    useEffect(() => {
+        if (id) {
+            fetchProductDetailsById(id);
+
+        }
+    }, [id]);
+  
+  
+  
+
     const isValidUrl = (string) => {
         try {
             new URL(string);
@@ -22,6 +45,24 @@ const ProductFetcher = () => {
             return false;
         }
     };
+    const fetchProductDetailsById = async (id) => {
+        setError('');
+        setLoading(true);
+        setProduct(null);
+        
+        try {
+           console.log(id)
+            const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+            setProduct(response.data);
+            setPriceChanged(null); 
+            
+        } catch (error) {
+            console.error('Error fetching product by ID:', error);
+            setError('Failed to fetch product by ID');
+        } finally {
+            setLoading(false); 
+        }
+    };
 
     const fetchProductDetails = async () => {
         if (!url.trim()) {
@@ -34,16 +75,16 @@ const ProductFetcher = () => {
             return;
         }
         setError('');
-        setLoading(true); // Set loading to true when fetching starts
+        setLoading(true); 
         setProduct(null);
         try {
             const response = await axios.post('http://localhost:5000/api/products/fetch-product', { url });
             setProduct(response.data);
-            setPriceChanged(null); // Reset price change state
+            setPriceChanged(null); 
         } catch (error) {
             console.error('Error fetching product:', error);
         } finally {
-            setLoading(false); // Ensure loading is false after the request is done
+            setLoading(false); 
         }
     };
 
@@ -60,26 +101,33 @@ const ProductFetcher = () => {
     };
 
     const recheckProductValue = async () => {
-        if (!product) return; // If no product data, do nothing
+        if (!product) return; 
 
         try {
             const response = await axios.post('http://localhost:5000/api/products/fetch-product', { url });
             const updatedProduct = response.data;
 
-            // Check if the price has changed
+            
             if (updatedProduct.currentPrice !== product.currentPrice) {
                 setPriceChanged({
                     oldPrice: product.currentPrice,
                     newPrice: updatedProduct.currentPrice,
                 });
-                setProduct(updatedProduct); // Update product with new data
+                setProduct(updatedProduct); 
+
+                
+                toast.success(`Price has changed from ₹${product.currentPrice} to ₹${updatedProduct.currentPrice}`);
             } else {
-                setPriceChanged({ samePrice: true }); // Indicate the price hasn't changed
+                setPriceChanged({ samePrice: true }); 
+
+                
+                toast.info('Price is the same.');
             }
         } catch (error) {
             console.error('Error rechecking product:', error);
         }
     };
+    
 
     return (
         <div className="container mt-5">
@@ -129,9 +177,13 @@ const ProductFetcher = () => {
 
                 {/* Display Product Details once fetched */}
                 {product && !loading && <ProductDetails product={product} recheckProductValue={recheckProductValue} />}
+
+                {/* Toast Container */}
+                <ToastContainer />
             </div>
         </div>
     );
 };
+
 
 export default ProductFetcher;

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import flipkarLogo from "../assets/flipkart_logo.png";
+import flipkarLogo from "../../assets/flipkart_logo.png";
+import ProductChart from "../ProductChart/ProductChart";
 
 const ProductDetails = ({ product, recheckProductValue }) => {
   const [showModal, setShowModal] = useState(false);
 
-  // Function to format the date
+  const formatNumberWithCommas = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -13,20 +17,18 @@ const ProductDetails = ({ product, recheckProductValue }) => {
     });
   };
 
-  // Function to calculate the highest price
   const highestPrice = () => {
     return Math.max(...product.priceHistory.map((entry) => entry.price));
   };
 
-  // Function to calculate the lowest price
   const lowestPrice = () => {
     return Math.min(...product.priceHistory.map((entry) => entry.price));
   };
 
-  // Function to calculate the average price
   const averagePrice = () => {
     const total = product.priceHistory.reduce((sum, entry) => sum + entry.price, 0);
-    return (total / product.priceHistory.length).toFixed(2); // To 2 decimal places
+    const avg = Math.round(total / product.priceHistory.length); // Round to nearest whole number
+    return formatNumberWithCommas(avg); // Format with commas
   };
 
   return (
@@ -58,10 +60,10 @@ const ProductDetails = ({ product, recheckProductValue }) => {
 
           <div className="price-container mb-3">
             <span className="product-current-price fs-3 fw-bold me-2">
-              ₹{product.currentPrice}
+              ₹{formatNumberWithCommas(product.currentPrice)}
             </span>
             <p className="product-mrp mb-0">
-              Highest Price: <span className="mrp">₹{highestPrice()}</span>
+              Highest Price: <span className="mrp">₹{formatNumberWithCommas(highestPrice())}</span>
             </p>
             <div id="lastUpdated" className="text-muted small">
               <span>
@@ -84,13 +86,13 @@ const ProductDetails = ({ product, recheckProductValue }) => {
                 Current price
               </span>
               <div id="currentPrice" className="stat-price fw-bold">
-                ₹{product.currentPrice}
+                ₹{formatNumberWithCommas(product.currentPrice)}
               </div>
             </div>
             <div className="col-6 col-sm-3 mb-2">
               <span className="stat-label d-block text-muted">Lowest price</span>
               <div id="lowestPrice" className="stat-price fw-bold">
-                ₹{lowestPrice()}
+                ₹{formatNumberWithCommas(lowestPrice())}
               </div>
             </div>
             <div className="col-6 col-sm-3 mb-2">
@@ -102,7 +104,7 @@ const ProductDetails = ({ product, recheckProductValue }) => {
             <div className="col-6 col-sm-3 mb-2">
               <span className="stat-label d-block text-muted">Highest price</span>
               <div id="highestPrice" className="stat-price fw-bold">
-                ₹{highestPrice()}
+                ₹{formatNumberWithCommas(highestPrice())}
               </div>
             </div>
           </div>
@@ -125,6 +127,23 @@ const ProductDetails = ({ product, recheckProductValue }) => {
             >
               Recheck Price
             </button>
+          </div>
+        </div>
+        
+        {/* Added margin for Product Description */}
+        <div className="mb-4 mt-4">
+          <h4>Product Description</h4>
+          <p>{product.description}</p>
+        </div>
+
+        <div className="mb-4">
+          <h4>Price History Graph</h4>
+          <div>
+            {product && (
+              <div className="mt-5">
+                <ProductChart priceHistory={product.priceHistory} />
+              </div>
+            )}
           </div>
         </div>
       </div>
